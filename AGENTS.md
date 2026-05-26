@@ -26,6 +26,8 @@ The wrapper mounts the current working directory at `/work` inside the container
 ## Gotchas
 
 - Alpine's default `imagemagick` package does not include HEIC delegates — `libheif` must be in the Dockerfile
+- Alpine's default `imagemagick` package does not include JPEG write support — `libjpeg-turbo` must be in the Dockerfile (pulls in `imagemagick-jpeg`)
+- Without `libjpeg-turbo`, `magick` will silently write HEIC data to `.jpg` files instead of re-encoding as JPEG
 - The `img-tools` script passes the entire argument string via `sh -c`, so quote the command as one string
 - Image auto-builds on first run (silently). Rebuild manually after Dockerfile changes: `docker build -t img-tools .`
 
