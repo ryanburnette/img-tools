@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+
+. "$(dirname "$0")/lib/img-docker"
+
+quality="${IMG_JPG_QUALITY:-85}"
+max_px="${IMG_MAX_PX:-1200}"
+
+for f in "$@"; do
+  out="${f%.*}.jpg"
+  img_run magick "$f" -resize "${max_px}x${max_px}" -quality "$quality" "$out"
+  echo "$f -> $out"
+done

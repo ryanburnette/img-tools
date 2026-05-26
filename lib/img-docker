@@ -1,0 +1,20 @@
+#!/bin/sh
+set -eu
+
+image_name="img-tools"
+image_tag="latest"
+repo_dir="$(cd "$(dirname "$0")/.." && pwd)"
+
+# Build the image if it doesn't exist
+if ! docker image inspect "${image_name}:${image_tag}" >/dev/null 2>&1; then
+  docker build -t "${image_name}:${image_tag}" "$repo_dir" >/dev/null
+fi
+
+# Run a command inside the container with the cwd mounted at /work
+img_run() {
+  docker run --rm \
+    -v "$(pwd)":/work \
+    -w /work \
+    "${image_name}:${image_tag}" \
+    "$@"
+}

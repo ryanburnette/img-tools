@@ -1,41 +1,54 @@
 # img-tools
 
-Run ImageMagick tools (convert, mogrify, identify, etc.) via Docker — no local install needed.
+Docker-based image tools. No ImageMagick installed on the host.
 
 ## Setup
 
-Add the wrapper script to your PATH:
+Symlink the scripts you want into your PATH:
 
 ```sh
-ln -s /path/to/img-tools/img-tools ~/.local/bin/img-tools
+ln -s /path/to/img-tools/heic-to-jpg ~/.local/bin/heic-to-jpg
+ln -s /path/to/img-tools/resize ~/.local/bin/resize
+ln -s /path/to/img-tools/identify ~/.local/bin/identify
 ```
 
-Or call it directly: `./img-tools "<command>"`
+Or run them directly from the repo: `./heic-to-jpg *.HEIC`
 
-## Usage
+## Scripts
 
-The wrapper mounts your current working directory at `/work` inside the container. Any command runs as if the tool were installed locally.
+### `heic-to-jpg`
+
+Convert HEIC files to JPEG with resize. Reasonable defaults.
 
 ```sh
-# Identify an image
-img-tools "identify photo.jpg"
+heic-to-jpg IMG_0001.HEIC IMG_0002.HEIC
+```
 
-# Convert formats (use `magick` in IMv7)
-img-tools "magick input.png output.webp"
+- Resizes to 1200px long edge
+- Quality 85
+- Output: `IMG_0001.jpg`, `IMG_0002.jpg`
+- Override defaults with env vars: `IMG_MAX_PX=800 IMG_JPG_QUALITY=90 heic-to-jpg *.HEIC`
 
-# Convert HEIC to JPG
-img-tools "magick IMG_0001.HEIC IMG_0001.jpg"
+### `resize`
 
-# Batch resize with mogrify
-img-tools "mogrify -resize 50% *.jpg"
+Resize images. Outputs as `<name>-resized.<ext>`.
 
-# Get image dimensions
-img-tools "identify -format '%wx%h' image.png"
+```sh
+resize 600 photo.jpg          # max 600px
+resize photo.jpg              # default 1200px
+```
+
+### `identify`
+
+Get image info.
+
+```sh
+identify photo.jpg
 ```
 
 ## Rebuilding
 
-The image builds automatically on first run. To rebuild after changes:
+The Docker image builds automatically on first run. To rebuild after Dockerfile changes:
 
 ```sh
 docker build -t img-tools .
