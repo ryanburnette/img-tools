@@ -1,6 +1,6 @@
 # img-tools
 
-Docker-based image tools. No ImageMagick installed on the host.
+Docker-based image tools. No ImageMagick or exiftool installed on the host.
 
 ## Setup
 
@@ -10,9 +10,21 @@ Symlink the scripts you want into your PATH:
 ln -s /path/to/img-tools/heic-to-jpg ~/.local/bin/heic-to-jpg
 ln -s /path/to/img-tools/resize ~/.local/bin/resize
 ln -s /path/to/img-tools/identify ~/.local/bin/identify
+ln -s /path/to/img-tools/images-auto-orient ~/.local/bin/images-auto-orient
+ln -s /path/to/img-tools/images-remove-meta ~/.local/bin/images-remove-meta
+ln -s /path/to/img-tools/images-to-jpg ~/.local/bin/images-to-jpg
 ```
 
 Or run them directly from the repo: `./heic-to-jpg *.HEIC`
+
+## Working directory
+
+The `work/` directory is gitignored. Put images there for processing:
+
+```sh
+cp ~/photos/*.HEIC work/
+./images-to-jpg work/
+```
 
 ## Scripts
 
@@ -45,6 +57,38 @@ Get image info.
 ```sh
 identify photo.jpg
 ```
+
+### `images-auto-orient`
+
+Fix EXIF orientation on JPGs in a directory. Modifies files in place.
+
+```sh
+images-auto-orient work/photos       # process all .jpg files
+images-auto-orient -d work/photos    # dry run
+```
+
+### `images-remove-meta`
+
+Strip orientation metadata from JPGs in a directory. Modifies files in place.
+
+```sh
+images-remove-meta work/photos       # strip metadata
+images-remove-meta -d work/photos    # dry run
+```
+
+### `images-to-jpg`
+
+Convert HEIC/PNG/JPEG files to JPG in a directory.
+
+```sh
+images-to-jpg work/photos            # convert supported files
+images-to-jpg -r work/photos         # recursive
+images-to-jpg -d work/photos         # dry run
+```
+
+- Auto-orients during conversion
+- Skips files already in JPG format
+- Supports: HEIC, PNG, JPE, JPEG
 
 ## Rebuilding
 

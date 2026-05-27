@@ -1,0 +1,34 @@
+#!/bin/sh
+set -eu
+
+. "$(dirname "$0")/lib/img-docker"
+
+usage() {
+  echo "Usage: $(basename "$0") [-d] <directory>"
+  exit 1
+}
+
+dry_run=0
+
+while getopts "d" opt; do
+  case "$opt" in
+    d) dry_run=1 ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+test -n "${1:-}" || usage
+dir="${1%/}"
+test -d "$dir" || { echo "Error: '$dir' is not a directory"; exit 2; }
+
+for f in "$dir"/*.jpg; do
+  if test -f "$f"; then
+    if test "$dry_run" -eq 1; then
+      echo "[dry run] mogrify -auto-orient $f"
+    else
+      img_run mogrify -auto-orient "$f"
+      echo "auto-oriented: $f"
+    fi
+  fi
+done
