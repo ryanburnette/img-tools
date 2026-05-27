@@ -1,7 +1,12 @@
 #!/bin/sh
 set -eu
 
-. "$(dirname "$0")/lib/img-docker"
+case "$0" in
+  /*) repo_dir="$(dirname "$0")" ;;
+  */*) repo_dir="$(cd "$(dirname "$0")" && pwd)" ;;
+  *) repo_dir="$(dirname "$(command -v "$0")")" ;;
+esac
+. "$repo_dir/lib/img-docker"
 
 usage() {
   echo "Usage: $(basename "$0") [-d] [-r] <directory>"

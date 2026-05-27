@@ -10,7 +10,14 @@ Add the repo directory to your PATH:
 export PATH="/path/to/img-tools:$PATH"
 ```
 
-Or run scripts directly from the repo: `./heic-to-jpg *.HEIC`
+Then run any script from anywhere:
+
+```sh
+heic-to-jpg *.HEIC
+resize 800 *.jpg
+```
+
+Or run directly from the repo: `./heic-to-jpg *.HEIC`
 
 ## Working directory
 

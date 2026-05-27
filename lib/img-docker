@@ -3,7 +3,7 @@ set -eu
 
 image_name="img-tools"
 image_tag="latest"
-repo_dir="$(cd "$(dirname "$0")/.." && pwd)"
+repo_dir="${repo_dir:?repo_dir must be set by the calling script}"
 
 # Build the image if it doesn't exist
 if ! docker image inspect "${image_name}:${image_tag}" >/dev/null 2>&1; then
