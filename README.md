@@ -15,7 +15,11 @@ ln -s /path/to/img-tools/images-remove-meta ~/.local/bin/images-remove-meta
 ln -s /path/to/img-tools/images-to-jpg ~/.local/bin/images-to-jpg
 ```
 
+Or add the repo directory to your PATH: `export PATH="/path/to/img-tools:$PATH"`
+
 Or run them directly from the repo: `./heic-to-jpg *.HEIC`
+
+> **Note on symlinks:** The scripts resolve `lib/img-docker` relative to their own location via `$0`. Symlinks currently break this resolution (e.g., `dirname "$0"` returns the symlink's directory, not the repo). If you symlink into PATH, use absolute symlinks: `ln -s /absolute/path/to/img-tools/identify ~/.local/bin/identify`. Adding the repo directory to PATH is simpler and avoids this issue entirely.
 
 ## Working directory
 
