@@ -34,16 +34,16 @@ cp ~/photos/*.HEIC work/
 
 ### `heic-to-jpg`
 
-Convert HEIC files to JPEG with resize. Reasonable defaults.
+Convert HEIC files to JPEG. No resizing (use `resize` for that).
 
 ```sh
 heic-to-jpg IMG_0001.HEIC IMG_0002.HEIC
 ```
 
-- Resizes to 1200px long edge
+- Auto-orients based on EXIF
 - Quality 85
 - Output: `IMG_0001.jpg`, `IMG_0002.jpg`
-- Override defaults with env vars: `IMG_MAX_PX=800 IMG_JPG_QUALITY=90 heic-to-jpg *.HEIC`
+- Override quality with env var: `IMG_JPG_QUALITY=90 heic-to-jpg *.HEIC`
 
 ### `resize`
 
@@ -53,6 +53,11 @@ Resize images. Outputs as `<name>-resized.<ext>`.
 resize 600 photo.jpg          # max 600px
 resize photo.jpg              # default 1200px
 ```
+
+- Shrink-only: images smaller than the target are left untouched
+- Auto-orients based on EXIF
+- Quality 85
+- Override quality with env var: `IMG_JPG_QUALITY=90 resize 800 *.jpg`
 
 ### `identify`
 
