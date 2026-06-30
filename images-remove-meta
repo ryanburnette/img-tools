@@ -37,3 +37,14 @@ for f in "$dir"/*.jpg; do
     fi
   fi
 done
+
+for f in "$dir"/*.png; do
+  if test -f "$f"; then
+    if test "$dry_run" -eq 1; then
+      echo "[dry run] exiftool -all= -overwrite_original $f"
+    else
+      img_run exiftool -all= -overwrite_original "$f"
+      echo "stripped metadata: $f"
+    fi
+  fi
+done

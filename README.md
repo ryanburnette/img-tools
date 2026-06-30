@@ -76,12 +76,17 @@ images-auto-orient -d work/photos    # dry run
 
 ### `images-remove-meta`
 
-Strip orientation metadata from JPGs in a directory. Modifies files in place.
+Strip metadata from JPGs and PNGs in a directory. Modifies files in place.
 
 ```sh
 images-remove-meta work/photos       # strip metadata
 images-remove-meta -d work/photos    # dry run
 ```
+
+- JPG: clears `Orientation` only (pairs with `images-auto-orient`)
+- PNG: strips all metadata (`exiftool -all=`), including tEXt/iTXt chunks
+  and XMP. Useful for scrubbing AI-generation tags (Midjourney job IDs,
+  IPTC `DigitalSourceType`, author, prompt) from PNG exports.
 
 ### `images-to-jpg`
 

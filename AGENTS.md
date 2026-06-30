@@ -23,6 +23,7 @@ Docker-based ImageMagick wrapper. Keeps heavy image tools off the host machine.
 - Without `libjpeg-turbo`, `magick` will silently write HEIC data to `.jpg` files instead of re-encoding as JPEG
 - No `ENTRYPOINT` in the Dockerfile — commands are passed directly via `docker run`
 - `images-remove-meta` uses `exiftool` — Alpine's `perl-image-exiftool` ships only the Perl module, not the CLI. The Dockerfile downloads the CLI script from the exiftool GitHub repo at build time. The version (13.03) must match the Alpine package version.
+- `images-remove-meta` behaves differently per format: JPG gets `-Orientation=` (narrow, matches `images-auto-orient`), PNG gets `-all=` (broad — needed to scrub tEXt/iTXt/XMP chunks where tools like Midjourney embed job IDs, prompts, and IPTC `DigitalSourceType`). If you extend to a new format, decide deliberately which behavior fits.
 - The `work/` directory is gitignored — put images there for processing
 - Directory-based scripts (`images-*`) take a directory argument and process files in place
 
