@@ -1,0 +1,38 @@
+#!/bin/sh
+set -eu
+
+case "$0" in
+  /*) repo_dir="$(dirname "$0")" ;;
+  */*) repo_dir="$(cd "$(dirname "$0")" && pwd)" ;;
+  *) repo_dir="$(dirname "$(command -v "$0")")" ;;
+esac
+
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") [-r] PATH...
+
+Convert HEIC, PNG, JPE, and JPEG inputs to JPG. Each PATH can be a file or
+a directory. With -r, directories are walked recursively. Source files are
+left in place; a sibling .jpg is created.
+
+Options:
+  -r                Recurse into subdirectories
+  -h, --help        Show this help and exit
+
+Environment:
+  IMG_JPG_QUALITY   JPEG quality (default 85)
+
+This is a thin dispatcher: runs heic-to-jpg, png-to-jpg, and jpeg-to-jpg
+in sequence on the same inputs. Each handles its own type and silently
+skips the rest.
+EOF
+}
+
+case "${1:-}" in
+  -h | --help) usage; exit 0 ;;
+  '') usage >&2; exit 1 ;;
+esac
+
+"$repo_dir/heic-to-jpg" "$@"
+"$repo_dir/png-to-jpg" "$@"
+"$repo_dir/jpeg-to-jpg" "$@"

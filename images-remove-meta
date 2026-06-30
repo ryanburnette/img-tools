@@ -9,42 +9,41 @@ esac
 . "$repo_dir/lib/img-docker"
 
 usage() {
-  echo "Usage: $(basename "$0") [-d] <directory>"
-  exit 1
+  cat <<EOF
+Usage: $(basename "$0") <directory>
+
+Strip embedded metadata from .jpg and .png files in <directory>. Modifies
+files in place.
+
+JPG: clears Orientation only (pairs with images-auto-orient).
+PNG: strips all metadata via 'exiftool -all=', including tEXt/iTXt chunks
+and XMP. Useful for scrubbing AI-generation tags from PNG exports.
+
+Options:
+  -h, --help        Show this help and exit
+EOF
 }
 
-dry_run=0
+case "${1:-}" in
+  -h | --help) usage; exit 0 ;;
+  '') usage >&2; exit 1 ;;
+esac
 
-while getopts "d" opt; do
-  case "$opt" in
-    d) dry_run=1 ;;
-    *) usage ;;
-  esac
-done
-shift $((OPTIND - 1))
-
-test -n "${1:-}" || usage
 dir="${1%/}"
-test -d "$dir" || { echo "Error: '$dir' is not a directory"; exit 2; }
+test -d "$dir" || { echo "Error: '$dir' is not a directory" >&2; exit 2; }
+
+mount="$(img_mount_for "$dir")"
 
 for f in "$dir"/*.jpg; do
   if test -f "$f"; then
-    if test "$dry_run" -eq 1; then
-      echo "[dry run] exiftool -Orientation= -n -overwrite_original $f"
-    else
-      img_run exiftool -Orientation= -n -overwrite_original "$f"
-      echo "stripped metadata: $f"
-    fi
+    img_run --mount "$mount" exiftool -Orientation= -n -overwrite_original "$f"
+    echo "stripped metadata: $f"
   fi
 done
 
 for f in "$dir"/*.png; do
   if test -f "$f"; then
-    if test "$dry_run" -eq 1; then
-      echo "[dry run] exiftool -all= -overwrite_original $f"
-    else
-      img_run exiftool -all= -overwrite_original "$f"
-      echo "stripped metadata: $f"
-    fi
+    img_run --mount "$mount" exiftool -all= -overwrite_original "$f"
+    echo "stripped metadata: $f"
   fi
 done

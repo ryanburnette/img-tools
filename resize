@@ -8,12 +8,42 @@ case "$0" in
 esac
 . "$repo_dir/lib/img-docker"
 
-max_px="${1:-1200}"
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") [MAX_PX] FILE...
+
+Resize images. Each input writes a new <name>-resized.<ext> sibling; the
+source is left in place. Shrink-only: images smaller than MAX_PX are copied
+through without resampling.
+
+Arguments:
+  MAX_PX            Max dimension on the long edge (default 1200)
+  FILE...           Input files
+
+Options:
+  -h, --help        Show this help and exit
+
+Environment:
+  IMG_JPG_QUALITY   JPEG quality (default 85)
+EOF
+}
+
+case "${1:-}" in
+  -h | --help) usage; exit 0 ;;
+  '') usage >&2; exit 1 ;;
+esac
+
+case "$1" in
+  *[!0-9]*) max_px=1200 ;;
+  *) max_px="$1"; shift ;;
+esac
+
+test -n "${1:-}" || { usage >&2; exit 1; }
+
 quality="${IMG_JPG_QUALITY:-85}"
-shift
 
 for f in "$@"; do
   out="${f%.*}-resized.${f##*.}"
-  img_run magick "$f" -auto-orient -resize "${max_px}x${max_px}>'" -quality "$quality" "$out"
+  img_run --mount "$(img_mount_for "$f")" magick "$f" -auto-orient -resize "${max_px}x${max_px}>" -quality "$quality" "$out"
   echo "$f -> $out"
 done

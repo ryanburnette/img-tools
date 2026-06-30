@@ -10,11 +10,63 @@ if ! docker image inspect "${image_name}:${image_tag}" >/dev/null 2>&1; then
   docker build -t "${image_name}:${image_tag}" "$repo_dir" >/dev/null
 fi
 
-# Run a command inside the container with the cwd mounted at /work
+# Resolve a path to canonical absolute form. Works for non-existent leaf names
+# as long as the parent directory exists.
+img_abs_path() {
+  d="$(dirname "$1")"
+  b="$(basename "$1")"
+  if test -d "$d"; then
+    printf '%s/%s' "$(cd "$d" && pwd)" "$b"
+  else
+    case "$1" in
+      /*) printf '%s' "$1" ;;
+      *) printf '%s/%s' "$(pwd)" "$1" ;;
+    esac
+  fi
+}
+
+# Print the host directory that must be mounted so $1 is visible inside the
+# container. Directories mount themselves; files mount their parent.
+img_mount_for() {
+  p="$(img_abs_path "$1")"
+  if test -d "$p"; then
+    printf '%s' "$p"
+  else
+    dirname "$p"
+  fi
+}
+
+# Run a command inside the container. Pass paths to expose with --mount HOSTDIR
+# (repeatable, must appear before the command). The host cwd is always mounted
+# at its real path so relative paths work; mounts already covered by cwd are
+# skipped.
 img_run() {
+  cwd="$(pwd)"
+  mount_args=""
+  while test "${1:-}" = "--mount"; do
+    shift
+    m="$1"
+    shift
+    test "$m" = "/" && continue
+    if test "$cwd" != "/"; then
+      case "$m" in
+        "$cwd" | "$cwd"/*) continue ;;
+      esac
+    fi
+    case " $mount_args " in
+      *" -v $m:$m "*) continue ;;
+    esac
+    mount_args="$mount_args -v $m:$m"
+  done
+  cwd_mount=""
+  if test "$cwd" != "/"; then
+    cwd_mount="-v $cwd:$cwd"
+  fi
+  # shellcheck disable=SC2086
   docker run --rm \
-    -v "$(pwd)":/work \
-    -w /work \
+    $cwd_mount \
+    $mount_args \
+    -w "$cwd" \
     "${image_name}:${image_tag}" \
     "$@"
 }

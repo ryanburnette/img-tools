@@ -12,11 +12,12 @@ usage() {
   cat <<EOF
 Usage: $(basename "$0") [-r] PATH...
 
-Convert HEIC files to JPEG. Each PATH can be a file or a directory. With -r,
-directories are walked recursively. Source files are left in place; a
-sibling .jpg is created.
+Normalize .jpe and .jpeg files to .jpg. Each PATH can be a file or a
+directory. With -r, directories are walked recursively. Source files are
+left in place; a sibling .jpg is created.
 
-Non-HEIC files are silently skipped (safe to call against a mixed directory).
+Non-matching files (including existing .jpg) are silently skipped (safe to
+call against a mixed directory).
 
 Options:
   -r                Recurse into subdirectories
@@ -60,13 +61,13 @@ fn_process() {
         fn_process "$f"
       elif test -f "$f"; then
         case "$f" in
-          *.heic | *.HEIC) fn_convert "$f" ;;
+          *.jpe | *.JPE | *.jpeg | *.JPEG) fn_convert "$f" ;;
         esac
       fi
     done
   elif test -f "$p"; then
     case "$p" in
-      *.heic | *.HEIC) fn_convert "$p" ;;
+      *.jpe | *.JPE | *.jpeg | *.JPEG) fn_convert "$p" ;;
     esac
   fi
 }

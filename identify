@@ -8,4 +8,32 @@ case "$0" in
 esac
 . "$repo_dir/lib/img-docker"
 
-img_run identify "$@"
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") [OPTIONS] FILE...
+
+Print image information. Wraps ImageMagick's identify inside the img-tools
+container.
+
+Options:
+  -h, --help        Show this help and exit
+
+All other options pass through to ImageMagick identify. Use
+'$(basename "$0") -verbose FILE' to dump embedded EXIF, IPTC, XMP, and PNG
+text chunks.
+EOF
+}
+
+case "${1:-}" in
+  -h | --help) usage; exit 0 ;;
+esac
+
+mount_args=""
+for a in "$@"; do
+  if test -e "$a"; then
+    mount_args="$mount_args --mount $(img_mount_for "$a")"
+  fi
+done
+
+# shellcheck disable=SC2086
+img_run $mount_args identify "$@"
